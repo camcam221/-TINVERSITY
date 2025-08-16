@@ -58,8 +58,8 @@ public class RobotController : MonoBehaviour
         // Ở đây giả sử robot di chuyển theo hướng world (x,z)
         Vector3 targetVelocity = inputDir * moveSpeed;
         // Giữ nguyên vận tốc y (rơi / nhảy)
-        Vector3 newVelocity = Vector3.Lerp(new Vector3(rb.velocity.x, 0, rb.velocity.z), targetVelocity, acceleration * Time.fixedDeltaTime);
-        rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.z);
+        Vector3 newVelocity = Vector3.Lerp(new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z), targetVelocity, acceleration * Time.fixedDeltaTime);
+        rb.linearVelocity = new Vector3(newVelocity.x, rb.linearVelocity.y, newVelocity.z);
 
         // Quay hướng robot về hướng di chuyển (nếu có input)
         if (inputDir.sqrMagnitude > 0.001f)
@@ -81,9 +81,9 @@ public class RobotController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             // reset thành phần y trước khi thêm lực để nhảy ổn định hơn
-            Vector3 vel = rb.velocity;
+            Vector3 vel = rb.linearVelocity;
             vel.y = 0f;
-            rb.velocity = vel;
+            rb.linearVelocity = vel;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
@@ -99,10 +99,10 @@ public class RobotController : MonoBehaviour
             // đặt lại vị trí vào trong biên
             rb.position = new Vector3(clampedX, pos.y, clampedZ);
             // loại bỏ vận tốc ngang hướng ra ngoài biên để tránh "dính" vào cạnh
-            Vector3 v = rb.velocity;
+            Vector3 v = rb.linearVelocity;
             v.x = Mathf.Clamp(v.x, -moveSpeed, moveSpeed);
             v.z = Mathf.Clamp(v.z, -moveSpeed, moveSpeed);
-            rb.velocity = v;
+            rb.linearVelocity = v;
         }
     }
 
@@ -113,10 +113,10 @@ public class RobotController : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             // dừng thành phần vận tốc ngang để không tiếp tục "đẩy" vào tường
-            Vector3 v = rb.velocity;
+            Vector3 v = rb.linearVelocity;
             v.x = 0f;
             v.z = 0f;
-            rb.velocity = new Vector3(v.x, rb.velocity.y, v.z);
+            rb.linearVelocity = new Vector3(v.x, rb.linearVelocity.y, v.z);
             // Debug.Log("Va chạm tường: " + collision.gameObject.name);
         }
     }
